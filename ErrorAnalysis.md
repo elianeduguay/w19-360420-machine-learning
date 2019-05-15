@@ -6,7 +6,7 @@
 
 - Each time I run the classification model I get a different accuracy because the test and training set are selected on a random basis. This causes the computer training to be based on different numbers, thus facing different cases each time.
 - When the classification process is ran 1000 times the mean and the standard deviations are:
-![(mean and std)](./images/mean and std.PNG)
+![(mean and std)](./images/mean.PNG)
 
 - The guideline against which we should compare the model is how many times the result is malignant and how many times it is benign.
 
