@@ -49,7 +49,7 @@ public class kNNMain{
 			// and make a print a predicted target label
 
 
-			int k = 10;
+			int k = 1;
 			KNNClassifier classifier = new KNNClassifier(k);
 			for(int i = 0; i < datatrain.size(); i++)
 			{
