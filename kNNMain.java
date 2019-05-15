@@ -23,9 +23,14 @@ public class kNNMain{
 		//TASK 2:Use the DataSet class to split the fullDataSet into Training and Held Out Test Dataset
 		int runsOfTheModel = 1000;
 		double [] accuracy = new double [runsOfTheModel];
+		double [] precision = new double [runsOfTheModel];
+		double [] recall = new double [runsOfTheModel];
 		for (int m = 0; m < runsOfTheModel; m++)
 		{
 
+			double nbMalignents = 0.;
+			double nbGoodMalignents = 0.;
+			double nbFalseNegative = 0.;
 			List<DataPoint> data = DataSet.readDataSet(file);
 			//DataSet.printDataSet(data);
 			List<DataPoint> datatest = DataSet.getTestSet(data, 3/10.);
@@ -44,7 +49,7 @@ public class kNNMain{
 			// and make a print a predicted target label
 
 
-			int k = 1;
+			int k = 10;
 			KNNClassifier classifier = new KNNClassifier(k);
 			for(int i = 0; i < datatrain.size(); i++)
 			{
@@ -64,42 +69,75 @@ public class kNNMain{
 
 			double nbGoodPreds = 0;
 			for (int i = 0; i < datatest.size(); i++) {
+				if (datatest.get(i).getLabel().equals("malignant")) {
+					nbMalignents += 1.;
+				}
+		
 				DataPoint [] neighbors = classifier.getNearestNeighbors(datatrain, datatest.get(i));
 				for (int j = 0; j < neighbors.length; j++) {
 					String pred = classifier.predict(Arrays.asList(neighbors), neighbors[j]);
 					if (pred.equals(datatest.get(i).getLabel())) {
 						nbGoodPreds++;
+						if (pred.equals("malignant")) {
+							nbGoodMalignents += 1.;
+						}
+			
 					}
-/*
+					for(int f = 0; f < datatest.size(); f++)
+					{
+					if(!pred.equals(datatest.get(i).getLabel()))
+					{
+						if(pred.equals("benign"))
+						{
+							nbFalseNegative += 1.;
+						}
+					}
+					}
+/*	
 					System.out.println("======================");
 					System.out.println(pred);
 					System.out.println(datatest.get(i).getLabel());
 					System.out.println(pred.equals(datatest.get(i).getLabel()));*/
-				}
-			}
+				}			
 			accuracy[m] = Math.round(nbGoodPreds / datatest.size() * 10000)/100.;
-			System.out.println("Accuracy: " + accuracy[m] + "%");
+			/*System.out.println("Accuracy: " + accuracy[m] + "%");*/
+			precision[m] = Math.round((nbGoodMalignents / nbMalignents) * 10000)/100.;
+			recall[m] = Math.round((nbGoodMalignents/(nbGoodMalignents + nbFalseNegative)) * 10000)/100.;
 		}
-		double mean = mean(accuracy);
-		System.out.println("The mean is: " + mean);
-		System.out.println("The standard deviation is: " + std(accuracy, mean));
-
+		}
+		System.out.println("Mean of accuracy: " + mean(accuracy) + "%");
+		System.out.println("The standard deviation is: " + standardDeviation(accuracy));
+		System.out.println("Mean of precision: " + mean(precision) + "%");
+		System.out.println("Mean of recall: " + mean(recall) + "%");
+	
 	}
 
-	public static double mean(double[] values) {
-		double total = 0;
-		for (int i = 0; i < values.length; i++) {
-			total += values[i];
-		}
-		return total / values.length;
-	}
+	public static double mean(double[] arr){
+		/*
+		Method that takes as an argument an array of doubles
+		Returns: average of the elements of array, as a double
+		*/
+		double sum = 0.0;
 
-	public static double std(double[] values, double mean) {
-		double series = 0;
-		for (int i = 0; i < values.length; i++) {
-			series += Math.pow(values[i] - mean, 2);
+		for (double a : arr){
+		  sum += a;
 		}
-		return Math.sqrt((1./values.length) * series);
-	}
+		return (double)sum/arr.length;
+	  }
+
+	  public static double standardDeviation(double[] arr){
+		/*
+		Method that takes as an argument an array of doubles
+		Returns: standard deviation of the elements of array, as a double
+		Dependencies: requires the *mean* method written above
+		*/
+		double avg = mean(arr);
+		double sum = 0.0;
+		for (double a : arr){
+		  sum += Math.pow(a-avg,2);
+		}
+		return (double)sum/arr.length;
+	  }
+
 
 }
